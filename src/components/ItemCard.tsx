@@ -1,5 +1,5 @@
 import React, { memo, useState } from 'react';
-import { useAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import type { Item } from '../types';
 import { ItemTolerance } from './ItemTolerance';
 import { TolerancePopover } from './TolerancePopover';
@@ -12,7 +12,7 @@ interface ItemCardProps {
 // Using memo to prevent unnecessary re-renders when other items change
 export const ItemCard: React.FC<ItemCardProps> = memo(({ item }) => {
   const [showPopover, setShowPopover] = useState(false);
-  const [, setEditingItemId] = useAtom(editingItemIdAtom);
+  const setEditingItemId = useSetAtom(editingItemIdAtom);
   
   const handleToleranceClick = () => {
     setShowPopover(true);

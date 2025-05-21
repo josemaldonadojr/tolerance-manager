@@ -1,5 +1,5 @@
 import { atom } from 'jotai';
-import { atomWithStorage } from 'jotai/utils';
+import { atomWithStorage, splitAtom } from 'jotai/utils';
 import type { Item, ValidationError } from './types';
 
 // Store all items
@@ -21,6 +21,27 @@ export const itemsAtom = atomWithStorage<Item[]>('items', [
     ],
   },
 ]);
+
+// Split the items array into individual atoms
+export const itemsAtomsAtom = splitAtom(itemsAtom);
+
+// Get item IDs for rendering the list without re-rendering on item changes
+export const itemIdsAtom = atom((get) => {
+  const items = get(itemsAtom);
+  return items.map(item => item.id);
+});
+
+// Atom for updating a single item without causing full re-renders
+export const updateItemAtom = atom(
+  null,
+  (get, set, updatedItem: Item) => {
+    const items = get(itemsAtom);
+    const newItems = items.map(item => 
+      item.id === updatedItem.id ? updatedItem : item
+    );
+    set(itemsAtom, newItems);
+  }
+);
 
 // Track which item is being edited
 export const editingItemIdAtom = atom<string | null>(null);

@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import type { Item, Tolerance, ValidationError } from '../types';
-import { editedTolerancesAtom, editingItemAtom, itemsAtom, validationErrorsAtom, validateTolerances } from '../atoms';
+import { 
+  editedTolerancesAtom, 
+  editingItemAtom, 
+  updateItemAtom, 
+  validationErrorsAtom, 
+  validateTolerances 
+} from '../atoms';
 
 interface TolerancePopoverProps {
   item: Item;
@@ -9,10 +15,10 @@ interface TolerancePopoverProps {
 }
 
 export const TolerancePopover: React.FC<TolerancePopoverProps> = ({ item, onClose }) => {
-  const [items, setItems] = useAtom(itemsAtom);
-  const [editingItem] = useAtom(editingItemAtom);
-  const [editedTolerances, setEditedTolerances] = useAtom(editedTolerancesAtom);
+  const editingItem = useAtomValue(editingItemAtom);
+  const setEditedTolerances = useSetAtom(editedTolerancesAtom);
   const [errors, setErrors] = useAtom(validationErrorsAtom);
+  const updateItem = useSetAtom(updateItemAtom);
   
   // Local state for tolerance values
   const [localValues, setLocalValues] = useState<Record<string, number>>({});
@@ -42,20 +48,15 @@ export const TolerancePopover: React.FC<TolerancePopoverProps> = ({ item, onClos
   const handleApply = () => {
     // Only proceed if there are no validation errors
     if (errors.length === 0) {
-      const updatedItems = items.map(i => {
-        if (i.id === item.id) {
-          return {
-            ...i,
-            tolerances: i.tolerances.map(t => ({
-              ...t,
-              value: localValues[t.id] ?? t.value
-            }))
-          };
-        }
-        return i;
-      });
+      const updatedItem = {
+        ...item,
+        tolerances: item.tolerances.map(t => ({
+          ...t,
+          value: localValues[t.id] ?? t.value
+        }))
+      };
       
-      setItems(updatedItems);
+      updateItem(updatedItem);
       onClose();
     }
   };

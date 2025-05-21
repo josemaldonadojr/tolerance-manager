@@ -1,18 +1,22 @@
-import React from 'react';
-import { useAtom } from 'jotai';
-import { itemsAtom } from '../atoms';
+import React, { memo } from 'react';
+import { useAtomValue } from 'jotai';
+import { itemIdsAtom, itemsAtomsAtom } from '../atoms';
 import { ItemCard } from './ItemCard';
+import { ItemCardWrapper } from './ItemCardWrapper';
 
-export const ItemList: React.FC = () => {
-  const [items] = useAtom(itemsAtom);
+// Memoize the entire list to prevent re-renders
+export const ItemList: React.FC = memo(() => {
+  // Only subscribe to the list of IDs, not the actual items
+  const itemIds = useAtomValue(itemIdsAtom);
+  const itemAtoms = useAtomValue(itemsAtomsAtom);
   
   return (
     <div className="item-list">
       <h2>Items with Tolerances</h2>
       
-      {items.map(item => (
-        <ItemCard key={item.id} item={item} />
+      {itemIds.map((id, index) => (
+        <ItemCardWrapper key={id} itemAtom={itemAtoms[index]} />
       ))}
     </div>
   );
-}; 
+}); 

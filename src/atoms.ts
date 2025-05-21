@@ -31,18 +31,6 @@ export const itemIdsAtom = atom((get) => {
   return items.map(item => item.id);
 });
 
-// Atom for updating a single item without causing full re-renders
-export const updateItemAtom = atom(
-  null,
-  (get, set, updatedItem: Item) => {
-    const items = get(itemsAtom);
-    const newItems = items.map(item => 
-      item.id === updatedItem.id ? updatedItem : item
-    );
-    set(itemsAtom, newItems);
-  }
-);
-
 // Validation errors for edited tolerances
 export const validationErrorsAtom = atom<ValidationError[]>([]);
 

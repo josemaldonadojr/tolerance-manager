@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useAtom, useSetAtom } from 'jotai';
 import type { Item, Tolerance } from '../types';
-import { 
-  updateItemAtom, 
+import {
   validationErrorsAtom, 
   validateTolerances,
   recordToleranceChangeAtom
@@ -15,7 +14,7 @@ interface TolerancePopoverProps {
 
 export const TolerancePopover: React.FC<TolerancePopoverProps> = ({ item, onClose }) => {
   const [errors, setErrors] = useAtom(validationErrorsAtom);
-  const updateItem = useSetAtom(updateItemAtom);
+
   const recordToleranceChange = useSetAtom(recordToleranceChangeAtom);
   
   // Local state for tolerance values
@@ -48,14 +47,6 @@ export const TolerancePopover: React.FC<TolerancePopoverProps> = ({ item, onClos
   const handleApply = () => {
     // Only proceed if there are no validation errors
     if (errors.length === 0) {
-      const updatedItem = {
-        ...item,
-        tolerances: item.tolerances.map(t => ({
-          ...t,
-          value: localValues[t.id] ?? t.value
-        }))
-      };
-      
       // Record changes for each tolerance that was modified
       item.tolerances.forEach(tolerance => {
         const newValue = localValues[tolerance.id];
@@ -71,8 +62,7 @@ export const TolerancePopover: React.FC<TolerancePopoverProps> = ({ item, onClos
           });
         }
       });
-      
-      updateItem(updatedItem);
+
       onClose();
     }
   };

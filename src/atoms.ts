@@ -43,21 +43,6 @@ export const updateItemAtom = atom(
   }
 );
 
-// Track which item is being edited
-export const editingItemIdAtom = atom<string | null>(null);
-
-// Derive the currently edited item
-export const editingItemAtom = atom(
-  (get) => {
-    const items = get(itemsAtom);
-    const editingId = get(editingItemIdAtom);
-    return editingId ? items.find(item => item.id === editingId) || null : null;
-  }
-);
-
-// Temporary storage for edited tolerance values
-export const editedTolerancesAtom = atom<Record<string, number>>({});
-
 // Validation errors for edited tolerances
 export const validationErrorsAtom = atom<ValidationError[]>([]);
 

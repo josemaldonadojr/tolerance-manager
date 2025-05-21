@@ -1,9 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import type { Item, Tolerance, ValidationError } from '../types';
+import { useAtom, useSetAtom } from 'jotai';
+import type { Item, Tolerance } from '../types';
 import { 
-  editedTolerancesAtom, 
-  editingItemAtom, 
   updateItemAtom, 
   validationErrorsAtom, 
   validateTolerances,
@@ -16,8 +14,6 @@ interface TolerancePopoverProps {
 }
 
 export const TolerancePopover: React.FC<TolerancePopoverProps> = ({ item, onClose }) => {
-  const editingItem = useAtomValue(editingItemAtom);
-  const setEditedTolerances = useSetAtom(editedTolerancesAtom);
   const [errors, setErrors] = useAtom(validationErrorsAtom);
   const updateItem = useSetAtom(updateItemAtom);
   const recordToleranceChange = useSetAtom(recordToleranceChangeAtom);
@@ -35,9 +31,8 @@ export const TolerancePopover: React.FC<TolerancePopoverProps> = ({ item, onClos
     });
     setLocalValues(initValues);
     initialValues.current = initValues;
-    setEditedTolerances({});
     setErrors([]);
-  }, [item, setEditedTolerances, setErrors]);
+  }, [item, setErrors]);
 
   // Handle value change
   const handleValueChange = (tolerance: Tolerance, value: number) => {
@@ -88,7 +83,7 @@ export const TolerancePopover: React.FC<TolerancePopoverProps> = ({ item, onClos
     return error ? error.message : null;
   };
 
-  if (!editingItem) return null;
+  // if (!editingItem) return null;
 
   return (
     <div className="tolerance-popover">

@@ -110,17 +110,6 @@ export const recordToleranceChangeAtom = atom(
   }
 );
 
-// Clear changes for an item
-export const clearChangesForItemAtom = atom(
-  null, 
-  (get, set, itemId: string) => {
-    const changedTolerances = get(changedTolerancesAtom);
-    const newChanges = { ...changedTolerances };
-    delete newChanges[itemId];
-    set(changedTolerancesAtom, newChanges);
-  }
-);
-
 // Clear all changes
 export const clearAllChangesAtom = atom(
   null,

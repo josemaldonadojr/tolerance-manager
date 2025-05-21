@@ -135,13 +135,6 @@ The application uses several techniques for optimal performance:
 3. **ID-based rendering** - The ItemList component only subscribes to IDs rather than the full item objects
 4. **Local state** - Uses local state for editing before committing changes to the global state
 
-## Technologies Used
-
-- **React 19** - UI library
-- **TypeScript** - Type-safe JavaScript
-- **Jotai** - Lightweight state management
-- **Vite** - Fast development and build tool
-
 ## Setup and Development
 
 To run the application locally:

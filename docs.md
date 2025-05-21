@@ -15,7 +15,7 @@ react-ts/
 │   │   ├── ItemCard.tsx    # Card for individual item display
 │   │   ├── ItemTolerance.tsx # Display for tolerance values
 │   │   ├── TolerancePopover.tsx # Popover for editing tolerances
-│   │   ├── CreateButton.tsx # Button to create new items
+│   │   ├── CreateButton.tsx # Button to create and submit tolerance changes
 │   │   ├── styles.css     # Component styles
 │   │   └── index.ts       # Component exports
 │   ├── atoms.ts           # Jotai atoms for state management
@@ -50,8 +50,8 @@ The application manages the following data structures:
      id: string;
      name: string;
      value: number;
-     floor: number;    // Minimum allowed value
-     ceiling: number;  // Maximum allowed value
+     floor: number;    # Minimum allowed value
+     ceiling: number;  # Maximum allowed value
    }
    ```
 
@@ -70,10 +70,10 @@ The application uses Jotai for state management with the following key atoms:
 - `itemsAtom` - Stores all items with their tolerances
 - `itemsAtomsAtom` - Split atom for efficient item updates
 - `itemIdsAtom` - List of item IDs for rendering optimization
-- `editingItemIdAtom` - Tracks which item is currently being edited
-- `editedTolerancesAtom` - Temporary storage during tolerance editing
 - `validationErrorsAtom` - Validation errors during editing
 - `changedTolerancesAtom` - Record of tolerance changes for submission
+- `recordToleranceChangeAtom` - Action atom to record tolerance changes
+- `clearAllChangesAtom` - Action atom to clear all recorded changes
 
 ## Component Functionality
 
@@ -90,6 +90,7 @@ Displays information about a single item and its tolerances:
 
 - Shows the item name/text
 - Displays all tolerances associated with the item
+- Uses local state to manage the tolerance editing popover
 - Opens a popover for editing tolerances when clicked
 - Uses memo to optimize rendering performance
 
@@ -97,12 +98,13 @@ Displays information about a single item and its tolerances:
 
 Provides an interface for editing tolerance values:
 
+- Uses local state to track tolerance values during editing
 - Shows input fields for each tolerance
 - Validates values as the user types
 - Displays error messages for invalid inputs
 - Checks tolerance floor/ceiling constraints
 - Implements business rules (e.g., Tolerance A cannot be greater than Tolerance B)
-- Records changes for audit/submission
+- Records changes for submission when "Apply" is clicked
 
 ### ItemTolerance
 
@@ -110,7 +112,11 @@ A simple display component for a single tolerance value.
 
 ### CreateButton
 
-Component for adding new items to the system.
+Component for submitting tolerance changes:
+- Tracks changes from the changedTolerancesAtom
+- Shows the count of items with changes
+- Prepares and submits payload with all changes
+- Clears changes after submission
 
 ## Business Rules
 

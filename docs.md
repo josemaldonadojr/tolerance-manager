@@ -4,6 +4,45 @@
 
 The Tolerance Manager is a React TypeScript application that allows users to manage and edit tolerance values for different items. The application uses Jotai for state management, React 19, and is built with Vite.
 
+## How It Works: Technical Walkthrough
+
+1. **Data Storage**: Everything starts with our `itemsAtom` in `atoms.ts`. This is where all items and their tolerances live. We're using Jotai's `atomWithStorage` so the data persists between sessions - pretty handy for not losing user changes on refresh.
+
+2. **Component Structure**:
+   - The component tree is pretty standard React stuff - `App` at the top, then `ItemList` handling the collection view
+   - Each item gets its own `ItemCard` (check out `ItemCard.tsx`) which manages its own UI state
+   - We break out individual tolerance displays into their own components to keep things clean
+
+3. **Editing Experience**: 
+   - We kept the UI interaction simple - click a tolerance and boom, up pops a `TolerancePopover`
+   - The popover creates local copies of the values (look at the `useState` call in `TolerancePopover.tsx`) so users can play around without committing changes
+   - As they type, we run values through `validateTolerances` in real-time and store any validation problems in `validationErrorsAtom` - this gives immediate feedback
+
+4. **Change Tracking**:
+   - When someone hits "Apply", we call `recordToleranceChange` (this is the main hook into our change tracking system)
+   - This builds up a nested object in `changedTolerancesAtom` with the structure: `{ itemId: { toleranceId: newValue } }` - only storing what's actually changed
+   - The nice thing here is the `CreateButton` can just subscribe to this atom to know how many items have pending changes
+
+5. **Submission**:
+   - The `CreateButton` (in `CreateButton.tsx`) does the heavy lifting for submission
+   - It transforms our change tracking object into a format the backend expects, with each item getting its own entry with just the changed tolerances
+   - After successful submission, we wipe the slate clean with `clearAllChangesAtom` so users can start fresh
+
+### Technical Bits:
+
+- **Performance Tricks**: We're using Jotai's `splitAtom` pattern, which was a lifesaver for performance. It essentially gives each item its own mini-state, so editing one tolerance doesn't cause the entire list to re-render.
+  
+- **Validation Logic**: All the business rules live in `atoms.ts`. Beyond just min/max checks, we're also enforcing relationships between tolerances (like making sure Tolerance A stays smaller than B). This was tricky to get right but works well now.
+  
+- **State Management Philosophy**:
+  - We're using a hybrid approach that's worked really well - React's `useState` for UI-only state (like "is this popover open?")
+  - Jotai atoms for any data that needs to persist or be shared between components
+  - All changes stay in a "pending" state until explicitly committed, which gives users a chance to back out
+  
+- **Render Optimization**: We're using `memo` pretty aggressively (look at `ItemCard`) to make sure we're not wasting renders when unrelated parts of the app change
+
+The end result is pretty slick - users can edit a bunch of tolerances across different items, get immediate feedback on what's valid and what's not, and then submit everything in one go. Let me know if you have questions or see ways we could improve this setup!
+
 ## Project Structure
 
 ```

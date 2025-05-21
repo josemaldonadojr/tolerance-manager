@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
-import { PrimitiveAtom, useAtomValue } from 'jotai';
-import { Item } from '../types';
+import type { PrimitiveAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
+import type { Item } from '../types';
 import { ItemCard } from './ItemCard';
 
 interface ItemCardWrapperProps {

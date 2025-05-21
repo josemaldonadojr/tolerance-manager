@@ -102,4 +102,56 @@ export const validateTolerances = (item: Item, editedValues: Record<string, numb
   });
   
   return errors;
-}; 
+};
+
+// Track changed tolerances for submission
+export const changedTolerancesAtom = atom<Record<string, Record<string, number>>>({});
+
+// Action to record a tolerance change after it's applied
+export const recordToleranceChangeAtom = atom(
+  null,
+  (get, set, payload: { itemId: string, toleranceId: string, newValue: number }) => {
+    const { itemId, toleranceId, newValue } = payload;
+    const changedTolerances = get(changedTolerancesAtom);
+    
+    // Structure: { itemId: { toleranceId: newValue } }
+    const itemChanges = changedTolerances[itemId] || {};
+    
+    // Create new state object to ensure reactivity
+    const newChanges = {
+      ...changedTolerances,
+      [itemId]: {
+        ...itemChanges,
+        [toleranceId]: newValue
+      }
+    };
+    
+    console.log('Recording tolerance change:', {
+      itemId,
+      toleranceId,
+      newValue,
+      allChanges: newChanges
+    });
+    
+    set(changedTolerancesAtom, newChanges);
+  }
+);
+
+// Clear changes for an item
+export const clearChangesForItemAtom = atom(
+  null, 
+  (get, set, itemId: string) => {
+    const changedTolerances = get(changedTolerancesAtom);
+    const newChanges = { ...changedTolerances };
+    delete newChanges[itemId];
+    set(changedTolerancesAtom, newChanges);
+  }
+);
+
+// Clear all changes
+export const clearAllChangesAtom = atom(
+  null,
+  (_get, set) => {
+    set(changedTolerancesAtom, {});
+  }
+); 

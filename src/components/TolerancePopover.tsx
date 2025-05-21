@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import type { Item, Tolerance, ValidationError } from '../types';
 import { 
@@ -6,7 +6,8 @@ import {
   editingItemAtom, 
   updateItemAtom, 
   validationErrorsAtom, 
-  validateTolerances 
+  validateTolerances,
+  recordToleranceChangeAtom
 } from '../atoms';
 
 interface TolerancePopoverProps {
@@ -19,17 +20,21 @@ export const TolerancePopover: React.FC<TolerancePopoverProps> = ({ item, onClos
   const setEditedTolerances = useSetAtom(editedTolerancesAtom);
   const [errors, setErrors] = useAtom(validationErrorsAtom);
   const updateItem = useSetAtom(updateItemAtom);
+  const recordToleranceChange = useSetAtom(recordToleranceChangeAtom);
   
   // Local state for tolerance values
   const [localValues, setLocalValues] = useState<Record<string, number>>({});
+  // Store initial values for comparison
+  const initialValues = useRef<Record<string, number>>({});
 
   // Initialize local values from item tolerances
   useEffect(() => {
-    const initialValues: Record<string, number> = {};
+    const initValues: Record<string, number> = {};
     item.tolerances.forEach(tolerance => {
-      initialValues[tolerance.id] = tolerance.value;
+      initValues[tolerance.id] = tolerance.value;
     });
-    setLocalValues(initialValues);
+    setLocalValues(initValues);
+    initialValues.current = initValues;
     setEditedTolerances({});
     setErrors([]);
   }, [item, setEditedTolerances, setErrors]);
@@ -55,6 +60,22 @@ export const TolerancePopover: React.FC<TolerancePopoverProps> = ({ item, onClos
           value: localValues[t.id] ?? t.value
         }))
       };
+      
+      // Record changes for each tolerance that was modified
+      item.tolerances.forEach(tolerance => {
+        const newValue = localValues[tolerance.id];
+        const originalValue = initialValues.current[tolerance.id];
+        
+        // Check if the value actually changed
+        if (newValue !== undefined && newValue !== originalValue) {
+          console.log(`Recording change for ${tolerance.id}: ${originalValue} -> ${newValue}`);
+          recordToleranceChange({ 
+            itemId: item.id, 
+            toleranceId: tolerance.id, 
+            newValue 
+          });
+        }
+      });
       
       updateItem(updatedItem);
       onClose();
